@@ -2,6 +2,7 @@
 -export([elect/3, process/2]).
 
 % Comment A
+elect(T, N) -> elect(T, T, N).
 elect(Initial, Tid, Npid) ->
 	io:format("Node ~w has value ~w ~n", [Initial, Tid]),
 	Npid!{election, Tid},
@@ -46,10 +47,20 @@ relay(Initial, Npid) ->
 		{election, Ntid} when Ntid =:= Initial -> announce(Initial);
 		{election, Ntid} -> Npid!{election, Ntid}, relay(Initial, Npid)
 	end.
-	
 
-process(Tid, N) -> io:format("Node ID ~w self: ~w neighbour ~w ~n", [Tid, self(), N]),
-	elect1(Tid, Tid, N).
+%process(Tid, N) -> io:format("Node ID ~w self: ~w neighbour ~w ~n", [Tid, self(), N]),
+%	elect1(Tid, Tid, N).
+
+process(Tid, N) -> 
+	receive
+		{elect} -> 
+			elect1(Tid, Tid, N);
+		{election, T} ->
+			N ! Tid,
+			elect2(Tid, Tid, N, T);
+		{Sender, Msg} ->
+			forward(Tid, N, Sender, Msg)
+	end.
 
 % Comment B
 
