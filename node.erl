@@ -1,5 +1,5 @@
 -module(node).
--export([elect/3]).
+-export([elect/3, process/2]).
 
 % Comment A
 elect(Initial, Tid, Npid) ->
@@ -24,6 +24,8 @@ relay(Initial, Npid) ->
 		{election, Ntid} -> Npid!{election, Ntid}, relay(Initial, Npid)
 	end.
 	
+
+process(Tid, N) -> io:format("Node ID ~w self: ~w neighbour ~w ~n", [Tid, self(), N]).
 
 % Comment B
 
