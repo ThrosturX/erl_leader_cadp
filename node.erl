@@ -2,6 +2,7 @@
 -export([elect/3, process/2]).
 
 % Comment A
+elect(T, N) -> elect(T, T, N).
 elect(Initial, Tid, Npid) ->
 	Npid!{election, Tid},
 	receive
@@ -24,13 +25,11 @@ relay(Initial, Npid) ->
 		{election, Ntid} -> Npid!{election, Ntid}, relay(Initial, Npid)
 	end.
 	
-
 process(Tid, N) -> 
 	receive
 		{elect} -> 
 			elect(Tid, N);
 		{election, T} ->
-			% missing if
 			N ! Tid,
 			elect2(Tid, N, T);
 		{Sender, Msg} ->
