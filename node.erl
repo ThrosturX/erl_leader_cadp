@@ -25,6 +25,7 @@ elect1(Initial, Tid, Npid) ->
 	receive 
 		{election, A} -> elect2(Initial, Tid, Npid, A)
 	end.
+
 elect2(_, Tid, _, A) when A =:= Tid -> 
 	announce(Tid);
 elect2(Initial, Tid, Npid, A) when A > Tid ->
@@ -56,7 +57,7 @@ process(Tid, N) ->
 		{elect} -> 
 			elect1(Tid, Tid, N);
 		{election, T} ->
-			N ! Tid,
+			N ! {election, Tid},
 			elect2(Tid, Tid, N, T);
 		{Sender, Msg} ->
 			forward(Tid, N, Sender, Msg)
