@@ -7,7 +7,7 @@
 init(N) -> 
 	Pid = spawn(ring, make_node, [self(), N-1, 0, 0, random_list(N)]),
 	receive
-		{Pid, _} -> io:format("done here~n", [])
+		{spawning, Pid, _} -> io:format("done here~n", [])
 		after 2000 -> io:format("timeout~n", [])
 	end.
 
@@ -37,7 +37,7 @@ rand_list(N, L) ->
 	
 make_node(From, 0, _, First, L) -> 
 	%io:format("input list is ~w~n", [L]),
-	From ! {self(), 'hey'},
+	From ! {spawning, self(), 'hey'},
 	%io:format("Node ~w has neighbour ~w~n", [self(), First]),
 	node:process(hd(L), First);
 
@@ -46,7 +46,7 @@ make_node(From, N, 0, _, [H|L])	->
 	%io:format("process nr. ~w id ~w~n", [N, self()]),
 	spawn(ring, make_node, [self(), N-1, 1, self(), L]),
 	receive 
-		{Child, _} -> From ! {self(), 'hey'}, node:process(H, Child) %io:format("Node ~w has neighbour ~w~n", [self(), Child])
+		{spawning, Child, _} -> From ! {spawning, self(), 'hey'}, node:process(H, Child) %io:format("Node ~w has neighbour ~w~n", [self(), Child])
 		after 2000 -> io:format("timeout~n", [])
 	end;
 	
@@ -54,7 +54,7 @@ make_node(From, N, _, First, [H|L])	->
 	%io:format("process nr. ~w id ~w~n", [N, self()]),
 	spawn(ring, make_node, [self(), N-1, 1, First, L]),
 	receive 
-		{Child, _} -> From ! {self(), 'hey'}, node:process(H, Child) %io:format("Node ~w has neighbour ~w~n", [self(), Child])
+		{spawning, Child, _} -> From ! {spawning, self(), 'hey'}, node:process(H, Child) %io:format("Node ~w has neighbour ~w~n", [self(), Child])
 		after 2000 -> io:format("timeout~n", [])
 	end.
 	
