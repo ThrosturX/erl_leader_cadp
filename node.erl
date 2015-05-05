@@ -3,7 +3,17 @@
 
 % Comment A
 
-process(Tid, N) -> io:format("Node ID ~w self: ~w neighbour ~w ~n", [Tid, self(), N]).
+process(Tid, N) -> 
+	receive
+		{elect} -> 
+			elect(Tid, N);
+		{election, T} ->
+			% missing if
+			N ! Tid,
+			elect2(Tid, N, T);
+		{Sender, Msg} ->
+			forward(Tid, N, Sender, Msg)
+	end.
 
 % Comment B
 
